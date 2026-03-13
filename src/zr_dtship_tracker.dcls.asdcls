@@ -1,0 +1,6 @@
+@EndUserText.label: 'ZR_DTSHIP_TRACKER'
+@MappingRole: true
+define role ZR_DTSHIP_TRACKER {
+  grant select on ZR_DTSHIP_TRACKER
+  where TRUE;
+}
