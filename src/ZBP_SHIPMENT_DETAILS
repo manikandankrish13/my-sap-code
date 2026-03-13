@@ -1,0 +1,738 @@
+CLASS zbp_shipment_details DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zr_dtshipment_det.
+ENDCLASS.
+
+CLASS zbp_shipment_details IMPLEMENTATION.
+ENDCLASS.
+
+CLASS lhc_zrdtshipmentdet DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
+      IMPORTING REQUEST requested_authorizations FOR zrdtshipmentdet RESULT result.
+
+    METHODS aipreview FOR MODIFY
+      IMPORTING keys FOR ACTION zrdtshipmentdet~aidelayprediction RESULT result.
+
+    METHODS aisendmail FOR MODIFY
+      IMPORTING keys FOR ACTION zrdtshipmentdet~aisendmailnotify RESULT result.
+
+    METHODS calculate_delay_risk FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zrdtshipmentdet~calculate_delay_risk.
+
+    METHODS ship_event_type FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zrdtshipmentdet~ship_event_type.
+
+    METHODS maplocation FOR MODIFY
+      IMPORTING keys FOR ACTION zrdtshipmentdet~maplocation .
+
+    METHODS getcoordinates FOR MODIFY
+      IMPORTING keys FOR ACTION zrdtshipmentdet~getcoordinates RESULT result.
+
+    METHODS testaction FOR MODIFY
+      IMPORTING keys FOR ACTION zrdtshipmentdet~testaction RESULT result.
+
+    METHODS askai FOR MODIFY
+      IMPORTING keys FOR ACTION zrdtshipmentdet~askai RESULT result .
+
+ENDCLASS.
+
+CLASS lhc_zrdtshipmentdet IMPLEMENTATION.
+
+  METHOD get_global_authorizations.
+  ENDMETHOD.
+
+  METHOD aipreview.
+
+    DATA : lt_aipredictlog TYPE TABLE FOR MAPPED EARLY zr_ai_predictlog,
+           ls_aipredictlog LIKE LINE OF lt_aipredictlog,
+           lt_update       TYPE TABLE FOR UPDATE  zr_dtshipment_det,
+           lt_result       TYPE TABLE FOR ACTION RESULT zr_dtshipment_det~aidelayprediction.
+
+
+    READ ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+    ENTITY zrdtshipmentdet
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_shipment_det).
+
+    LOOP AT lt_shipment_det ASSIGNING FIELD-SYMBOL(<ls_shipment_det>).
+      DATA : lv_summary TYPE char256.
+      CASE <ls_shipment_det>-currentstatus.
+        WHEN 'Delay'.
+          lv_summary = |Predicted Delay: 3 Days. Check transport conditions.|.
+        WHEN 'On-Time'.
+          lv_summary = |Shipment is on time. No delay expected.|.
+        WHEN OTHERS.
+          lv_summary = |AI Prediction not available yet.|.
+      ENDCASE.
+
+      APPEND VALUE #(
+      %tky = <ls_shipment_det>-%tky
+      aisummary = lv_summary
+      ) TO lt_update.
+
+      "Return entity to UI
+      APPEND VALUE #(
+            %tky = <ls_shipment_det>-%tky
+      ) TO lt_result.
+    ENDLOOP.
+
+    IF lt_update IS NOT INITIAL.
+      MODIFY ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+      ENTITY zrdtshipmentdet
+      UPDATE FIELDS ( aisummary )
+      WITH lt_update.
+    ENDIF.
+
+    IF lt_result IS NOT INITIAL.
+      result = lt_result.
+    ENDIF.
+
+    reported-zrdtshipmentdet =  VALUE #(
+      ( %msg = new_message_with_text(
+            severity = if_abap_behv_message=>severity-success
+            text     = 'AI Prediction Updated Successfully'
+        )
+      )
+  ).
+  ENDMETHOD.
+
+  METHOD aisendmail.
+
+    DATA:
+      lt_shipment TYPE TABLE FOR READ IMPORT zr_dtshipment_det,
+      lv_subject  TYPE cl_bcs_mail_message=>ty_subject,
+      lv_address  TYPE cl_bcs_mail_message=>ty_address,
+      lv_body     TYPE string.
+*
+*    READ ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+*      ENTITY zrdtshipmentdet
+*      ALL FIELDS WITH CORRESPONDING #( keys )
+*      RESULT DATA(lt_data).
+*
+*    LOOP AT lt_data ASSIGNING FIELD-SYMBOL(<ls_data>).
+*
+*      lv_subject = |Shipment Delay Alert - { <ls_data>-shipmentid }|.
+*
+*      lv_body = |Shipment ID: { <ls_data>-shipmentid } | &&
+*                |\nStatus: { <ls_data>-delayrisk } | &&
+*                |\nDelay Hours: { <ls_data>-delayhours } | &&
+*                |\nAI Summary: { <ls_data>-aisummary } |.
+*
+*      TRY.
+*
+*          DATA(lo_mail) = cl_bcs_mail_message=>create_instance( ).
+*
+*          lo_mail->set_subject( lv_subject ).
+*
+*          lo_mail->set_main(
+*            cl_bcs_mail_textpart=>create_instance(
+*              iv_content = lv_body
+*              iv_content_type = 'text/plain'
+*            )
+*          ).
+*
+    lv_address = 'manikandankrish13@gmail.com'.
+*
+*          lo_mail->add_recipient(
+*            iv_address = lv_address
+*          ).
+*
+*          lo_mail->set_sender(
+*            iv_address = lv_address ).
+*
+*          TRY.
+*              lo_mail->send(
+*            IMPORTING
+*              et_status              =              DATA(lt_mail_status)
+**              ev_mail_status         =
+**            RECEIVING
+**              ro_mail_status_monitor =
+*              ).
+*            CATCH cx_bcs_mail.
+*
+*          ENDTRY.
+*
+*        CATCH cx_bcs_mail INTO DATA(lx_mail).
+*      ENDTRY.
+
+    TRY.
+        DATA(mail) = cl_bcs_mail_message=>create_instance( ).
+        mail->set_sender( lv_address ).
+        mail->add_recipient( lv_address ).
+        mail->add_recipient( iv_address = lv_address iv_copy = cl_bcs_mail_message=>cc ).
+        mail->set_subject( 'Cloud Dev/RAP Mail' ).
+        mail->set_main( cl_bcs_mail_textpart=>create_text_html( '<h1>Hi</h1><p>E-Mail created with released class for cloud dev</p>' ) ).
+        mail->add_attachment( cl_bcs_mail_textpart=>create_text_plain(
+            iv_content      = 'Attachment as .txt'
+            iv_filename     = 'Text_Attachment.txt'
+          ) ).
+        mail->add_attachment( cl_bcs_mail_textpart=>create_instance(
+           iv_content      = 'Attachment as .xml'
+           iv_content_type = 'text/xml'
+           iv_filename     = 'Text_Attachment.xml'
+         ) ).
+
+        mail->send( ).
+
+      CATCH cx_bcs_mail INTO DATA(mail_cx).
+        "handle exceptions here
+    ENDTRY.
+*  ENDLOOP.
+
+    reported-zrdtshipmentdet = VALUE #(
+     ( %msg = new_message_with_text(
+         severity = if_abap_behv_message=>severity-success
+         text = 'Mail Notification Sent'
+       )
+     )
+    ).
+  ENDMETHOD.
+
+  METHOD calculate_delay_risk.
+
+    DATA : lt_update TYPE TABLE FOR UPDATE zr_dtshipment_det.
+
+    READ ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+    ENTITY zrdtshipmentdet
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_shipment_det).
+
+    LOOP AT lt_shipment_det ASSIGNING FIELD-SYMBOL(<ls_shipment_det>).
+      DATA(lv_risk) = <ls_shipment_det>-delayrisk.
+      DATA(lv_crit) = <ls_shipment_det>-delayriskcrit.
+
+      IF <ls_shipment_det>-delayrisk IS INITIAL OR <ls_shipment_det>-delayhours <= 8.
+        lv_risk = 'ON_TRACK'.
+        lv_crit = 3.
+      ELSEIF <ls_shipment_det>-delayhours <= 24.
+        lv_risk = 'AT_RISK'.
+        lv_crit = 2.
+      ELSE.
+        lv_risk = 'DELAYED'.
+        lv_crit = 1.
+      ENDIF.
+
+      IF lv_risk <> <ls_shipment_det>-delayrisk OR lv_crit <> <ls_shipment_det>-delayriskcrit.
+        APPEND VALUE #(
+        %tky = <ls_shipment_det>-%tky
+        delayrisk = lv_risk
+        delayriskcrit = lv_crit
+        ) TO lt_update.
+      ENDIF.
+    ENDLOOP.
+
+    IF  lt_update IS NOT INITIAL.
+      MODIFY ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+      ENTITY zrdtshipmentdet
+      UPDATE FIELDS ( delayrisk delayriskcrit )
+      WITH lt_update.
+    ENDIF.
+
+    reported-zrdtshipmentdet =  VALUE #(
+      ( %msg = new_message_with_text(
+*            %tky = <ls_shipment_det>-%tky
+            severity = if_abap_behv_message=>severity-success
+            text     = 'Delay Risk Calculated Successfully'
+        )
+      ) ).
+  ENDMETHOD.
+
+  METHOD ship_event_type.
+  ENDMETHOD.
+
+  METHOD maplocation.
+
+*    DATA : lt_update TYPE TABLE FOR UPDATE zr_dtshipment_det.
+*    LOOP AT keys INTO DATA(ls_key).
+*
+*     READ ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+*     ENTITY zrdtshipmentdet
+*     ALL FIELDS WITH CORRESPONDING #( keys )
+*     RESULT DATA(lt_shipment_det).
+*endlooP.
+
+*      "Map location to coordinates
+*      DATA(lo_geo) = NEW zcl_country_geo_util( ).
+*
+*      DATA : lv_org  TYPE land1,
+*             lv_dest TYPE land1.
+*
+*      lv_org = lt_shipment_det[ 1 ]-originlocation.
+*      lv_dest = lt_shipment_det[ 1 ]-destinationlocation.
+*
+*
+*      lo_geo->fetch_store_cordinates(
+*        EXPORTING
+*          iv_country_iso_org  =  lv_org
+*          iv_country_iso_dest = lv_dest
+**            iv_country_name     =
+*        RECEIVING
+*          ls_country_coord    = DATA(ls_country_coord)
+*      ).
+*
+*
+*      "Update entity with coordinates
+*      APPEND VALUE #(
+*          %tky = ls_key-%tky
+*          latitude = ls_country_coord-latitude
+*          longitude = ls_country_coord-longitude
+*      ) TO lt_update.
+
+
+* DATA : lt_update TYPE TABLE FOR UPDATE zr_dtshipment_det.
+*
+*    READ ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+*    ENTITY zrdtshipmentdet
+*    ALL FIELDS WITH CORRESPONDING #( keys )
+*    RESULT DATA(lt_shipment_det).
+*
+*
+*    DATA(lo_geo) = NEW zcl_country_geo_util( ).
+*
+*    lo_geo->fetch_store_cordinates(
+*      EXPORTING
+*        iv_country_iso   = lt_shipment_det[ 1 ]-currentlocation
+*        iv_country_name  = lt_shipment_det[ 1 ]-currentlocation
+*      RECEIVING
+*        ls_country_coord = data(ls_country_coord)
+*    ).
+
+  ENDMETHOD.
+
+  METHOD getcoordinates.
+
+    DATA: lv_city     TYPE string,
+          lv_state    TYPE string,
+          lv_url      TYPE string,
+*          lo_client   TYPE REF TO if_http_client,
+          lv_response TYPE string.
+
+    DATA:
+      lo_http_dest TYPE REF TO if_http_destination,
+      lo_client    TYPE REF TO if_web_http_client,
+      lo_response  TYPE REF TO if_web_http_response,
+      lv_json      TYPE string,
+      lv_lat       TYPE decfloat34,
+      lv_lon       TYPE decfloat34,
+      lt_results   TYPE TABLE FOR ACTION RESULT zr_dtshipment_det~getcoordinates.
+
+    READ ENTITIES OF zr_dtshipment_det
+        IN LOCAL MODE
+        ENTITY zrdtshipmentdet
+        ALL FIELDS
+        WITH CORRESPONDING #( keys )
+        RESULT DATA(lt_data).
+
+    LOOP AT lt_data INTO DATA(ls_data).
+
+      lv_city  = ls_data-currentcity.
+      lv_state = ls_data-currentregion.
+
+      lv_url = |https://nominatim.openstreetmap.org/search?q={ lv_city },{ lv_state }&format=json|.
+      TRY.
+          lo_http_dest = cl_http_destination_provider=>create_by_url(
+          i_url = 'https://geocoding-api.open-meteo.com'
+          ).
+        CATCH cx_http_dest_provider_error.
+          "handle exception
+      ENDTRY.
+
+      TRY.
+          lo_client = cl_web_http_client_manager=>create_by_http_destination(
+          lo_http_dest ).
+        CATCH cx_web_http_client_error.
+          "handle exception
+      ENDTRY.
+
+      lo_client->get_http_request( )->set_uri_path(
+      |/v1/search?name={ ls_data-originlocation }&count=1|
+      ).
+
+      lo_client->get_http_request( )->set_header_field(
+      i_name = 'Accept'
+      i_value = 'application/json'
+      ).
+
+      TRY.
+          lo_response = lo_client->execute( if_web_http_client=>get ).
+        CATCH cx_web_http_client_error.
+          "handle exception
+      ENDTRY.
+
+      lv_json = lo_response->get_text( ).
+
+      TYPES: BEGIN OF ty_result,
+               latitude  TYPE decfloat34,
+               longitude TYPE decfloat34,
+             END OF ty_result.
+
+      TYPES: BEGIN OF ty_response,
+               results TYPE STANDARD TABLE OF ty_result WITH EMPTY KEY,
+             END OF ty_response.
+
+      DATA(ls_response) = VALUE ty_response( ).
+
+      /ui2/cl_json=>deserialize(
+      EXPORTING json = lv_json
+      CHANGING data = ls_response
+      ).
+
+      READ TABLE ls_response-results INDEX 1 INTO DATA(ls_result).
+      IF sy-subrc <> 0.
+        RETURN.
+      ENDIF.
+
+*    ls_country_coord-country_org = .
+*    ls_country_coord-country_dest = iv_country_iso_dest.
+*    ls_country_coord-latitude = ls_result-latitude.
+*    ls_country_coord-longitude = ls_result-longitude.
+*    ls_country_coord-createdby = sy-uname.
+
+*      MODIFY ENTITIES OF zr_dtshipment_det
+*        IN LOCAL MODE
+*        ENTITY zrdtshipmentdet
+*        UPDATE
+*        FIELDS ( orginlatitude orginlongitude destinationlatitude destinationlongitude )
+*        WITH VALUE #(
+*          ( shipmentid = ls_data-shipmentid
+*            orginlatitude  = ls_result-latitude
+*            orginlongitude = ls_result-longitude
+*            destinationlatitude = ls_result-latitude
+*            destinationlongitude = ls_result-longitude )
+*        ).
+
+      MODIFY ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+        ENTITY zrdtshipmentdet
+        UPDATE
+        FIELDS ( orginlatitude orginlongitude destinationlatitude destinationlongitude )
+        WITH VALUE #(
+          FOR key IN keys
+          ( %tky = key-%tky
+            orginlatitude  = ls_result-latitude
+            orginlongitude = ls_result-longitude
+            destinationlatitude = ls_result-latitude
+            destinationlongitude = ls_result-longitude
+          )
+        )
+        REPORTED DATA(ls_reported).
+
+      "Return entity to UI
+      APPEND VALUE #(
+            %tky = ls_data-%tky
+      ) TO lt_results.
+
+      IF lt_results IS NOT INITIAL.
+        result = lt_results.
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD testaction.
+  ENDMETHOD.
+
+  METHOD askai .
+    DATA:
+      lo_http_dest TYPE REF TO if_http_destination,
+      lo_client    TYPE REF TO if_web_http_client,
+      lo_response  TYPE REF TO if_web_http_response,
+      lo_request   TYPE REF TO if_web_http_request,
+      lv_json      TYPE string,
+      lv_prompt    TYPE string,
+      lv_body      TYPE string,
+      lv_api_key   TYPE string VALUE 'YOUR_KEY',
+      lt_results   TYPE TABLE FOR ACTION RESULT zr_dtshipment_det~askai.
+
+    TYPES: BEGIN OF ty_message,
+             role    TYPE string,
+             content TYPE string,
+           END OF ty_message.
+
+    TYPES: BEGIN OF ty_request,
+             model    TYPE string,
+             messages TYPE STANDARD TABLE OF ty_message WITH EMPTY KEY,
+           END OF ty_request.
+
+    TYPES: BEGIN OF ty_message_resp,
+             content TYPE string,
+           END OF ty_message_resp.
+
+    TYPES: BEGIN OF ty_choice,
+             message TYPE ty_message_resp,
+           END OF ty_choice.
+
+    TYPES: BEGIN OF ty_response,
+             choices TYPE STANDARD TABLE OF ty_choice WITH EMPTY KEY,
+           END OF ty_response.
+
+* Read RAP entities
+    READ ENTITIES OF zr_dtshipment_det
+        IN LOCAL MODE
+        ENTITY zrdtshipmentdet
+        ALL FIELDS
+        WITH CORRESPONDING #( keys )
+        RESULT DATA(lt_data).
+
+    LOOP AT lt_data INTO DATA(ls_data).
+
+* Build AI prompt using shipment data
+      lv_prompt = |Shipment from { ls_data-originlocation } to { ls_data-destinationlocation }. |
+                  && |Delay hours: { ls_data-delayhours }. |
+                  && |Weather: { ls_data-currentstatus }. |
+                  && |Provide logistics delay risk analysis.|.
+
+*------------------------------------------------------------------
+* Create HTTP Destination
+*------------------------------------------------------------------
+
+      TRY.
+          lo_http_dest = cl_http_destination_provider=>create_by_url(
+            i_url = 'https://api.openai.com'
+          ).
+        CATCH cx_http_dest_provider_error.
+          RETURN.
+      ENDTRY.
+
+*------------------------------------------------------------------
+* Create HTTP Client
+*------------------------------------------------------------------
+
+      TRY.
+          lo_client = cl_web_http_client_manager=>create_by_http_destination(
+            lo_http_dest ).
+        CATCH cx_web_http_client_error.
+          RETURN.
+      ENDTRY.
+
+*------------------------------------------------------------------
+* API Endpoint
+*------------------------------------------------------------------
+
+      lo_client->get_http_request( )->set_uri_path(
+      '/v1/chat/completions'
+      ).
+*----------------------------------------------------------------
+* Prepare Request
+*----------------------------------------------------------------
+      lo_request = lo_client->get_http_request( ).
+
+      lo_request->set_uri_path( '/v1/chat/completions' ).
+
+      TRY.
+          lo_response = lo_client->execute( if_web_http_client=>post ).
+        CATCH cx_web_http_client_error.
+          "handle exception
+      ENDTRY.
+
+*------------------------------------------------------------------
+* Headers
+*------------------------------------------------------------------
+
+      lo_client->get_http_request( )->set_header_field(
+        i_name  = 'Content-Type'
+        i_value = 'application/json'
+      ).
+
+      lo_client->get_http_request( )->set_header_field(
+        i_name  = 'Authorization'
+        i_value = |Bearer { lv_api_key }|
+      ).
+
+*------------------------------------------------------------------
+* Build JSON request safely
+*------------------------------------------------------------------
+      DATA(ls_request) = VALUE ty_request(
+        model = 'gpt-4o-mini'
+        messages = VALUE #( (
+            role = 'user'
+            content = lv_prompt
+        ) )
+      ).
+
+      /ui2/cl_json=>serialize(
+        EXPORTING data = ls_request
+        pretty_name = /ui2/cl_json=>pretty_mode-camel_case
+        RECEIVING r_json = lv_body
+      ).
+
+      lo_client->get_http_request( )->set_text( lv_body ).
+
+*------------------------------------------------------------------
+* Execute API call
+*------------------------------------------------------------------
+
+      TRY.
+          lo_response = lo_client->execute( if_web_http_client=>post ).
+        CATCH cx_web_http_client_error.
+          RETURN.
+      ENDTRY.
+
+*------------------------------------------------------------------
+* Get response JSON
+*------------------------------------------------------------------
+
+      lv_json = lo_response->get_text( ).
+
+*------------------------------------------------------------------
+* Parse OpenAI response
+*------------------------------------------------------------------
+
+      DATA(ls_response) = VALUE ty_response( ).
+
+      /ui2/cl_json=>deserialize(
+        EXPORTING json = lv_json
+        CHANGING  data = ls_response
+      ).
+
+      READ TABLE ls_response-choices INDEX 1 INTO DATA(ls_choice).
+
+      DATA : lv_ai_result TYPE string.
+
+      IF sy-subrc = 0.
+        lv_ai_result = ls_choice-message-content.
+      ENDIF.
+
+*----------------------------------------------------------------
+* Show Popup Message in Fiori
+*----------------------------------------------------------------
+      APPEND VALUE #(
+        %tky = ls_data-%tky
+        %msg = new_message_with_text(
+                 severity = if_abap_behv_message=>severity-information
+                 text     = lv_ai_result )
+      ) TO reported-zrdtshipmentdet.
+
+*------------------------------------------------------------------
+* Update RAP entity with AI result
+*------------------------------------------------------------------
+
+*      MODIFY ENTITIES OF zr_dtshipment_det
+*        IN LOCAL MODE
+*        ENTITY zrdtshipmentdet
+*        UPDATE
+*        FIELDS ( AiResponse )
+*        WITH VALUE #(
+*          ( shipmentid = ls_data-shipmentid
+*            AiResponse  = lv_ai_result )
+*        ) REPORTED reported.
+
+      MODIFY ENTITIES OF zr_dtshipment_det IN LOCAL MODE
+        ENTITY zrdtshipmentdet
+        UPDATE FIELDS ( airesponse )
+        WITH VALUE #(
+          FOR key IN keys
+          ( %tky = key-%tky
+            airesponse = lv_ai_result
+          )
+        )
+        REPORTED DATA(ls_reported).
+
+*------------------------------------------------------------------
+* Return result to UI
+*------------------------------------------------------------------
+
+      APPEND VALUE #(
+          %tky = ls_data-%tky
+      ) TO lt_results.
+
+    ENDLOOP.
+
+    IF lt_results IS NOT INITIAL.
+      result = lt_results.
+    ENDIF.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lsc_zr_dtshipment_det DEFINITION INHERITING FROM cl_abap_behavior_saver.
+  PROTECTED SECTION.
+
+    METHODS adjust_numbers REDEFINITION.
+
+    METHODS cleanup_finalize REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zr_dtshipment_det IMPLEMENTATION.
+
+  METHOD adjust_numbers.
+    DATA:
+      lt_travel_tech_m TYPE TABLE FOR MAPPED EARLY zr_dtshipment_det,
+      ls_travel_tech_m LIKE LINE OF lt_travel_tech_m,
+      lt_need_number   LIKE mapped-zrdtshipmentdet,
+      lv_curr_num      TYPE n LENGTH 10.
+
+    TRY.
+*        cl_numberrange_runtime=>number_get(
+*          EXPORTING
+*            nr_range_nr = 'VN'
+*            object   = 'ZMK_SHIPID'
+*          IMPORTING
+*            number      = DATA(lv_number)
+*          EXCEPTIONS
+*            OTHERS      = 1 ).
+*        "Read first 10 character
+*        lv_curr_num = lv_number+10.
+
+        SELECT MAX( shipment_id  ) FROM zdt_shipment_det INTO @DATA(lv_shipment_id).
+        IF lv_shipment_id IS INITIAL.
+          lv_shipment_id = 1000000000.
+        ELSE.
+          lv_shipment_id = lv_shipment_id + 1.
+        ENDIF.
+        CONDENSE lv_shipment_id.
+      CATCH cx_number_ranges ##NO_HANDLER .
+    ENDTRY.
+
+    LOOP AT mapped-zrdtshipmentdet ASSIGNING FIELD-SYMBOL(<ls_entity>).
+*      IF <ls_entity>-shipmentid IS INITIAL.
+      <ls_entity>-shipmentid = lv_shipment_id.
+      TRY.
+          <ls_entity>-guiid = cl_system_uuid=>create_uuid_x16_static( ).
+        CATCH cx_uuid_error.
+      ENDTRY.
+*      <ls_entity>- = 'sap-icon://flight'.
+*      ENDIF.
+    ENDLOOP.
+
+    SELECT MAX( event_id ) FROM zdt_ship_tracker INTO @DATA(lv_event_id).
+    IF lv_event_id IS INITIAL.
+      lv_event_id = 1100000000.
+    ELSE.
+      lv_event_id = lv_event_id + 1.
+    ENDIF.
+    CONDENSE lv_event_id.
+
+    LOOP AT mapped-zrdtshiptracker ASSIGNING FIELD-SYMBOL(<ls_shiptrack>).
+*      IF <ls_shiptrack>-shipmentid IS NOT INITIAL.
+      <ls_shiptrack>-shipmentid = lv_shipment_id.
+      <ls_shiptrack>-eventid = lv_event_id.
+      <ls_shiptrack>-guiid = <ls_shiptrack>-%pid.
+*      ENDIF.
+    ENDLOOP.
+
+
+    SELECT MAX( request_id ) FROM zdt_aipredictlog INTO @DATA(lv_log_id).
+    IF lv_log_id IS INITIAL.
+      lv_log_id = 1200000000.
+    ELSE.
+      lv_log_id = lv_log_id + 1.
+    ENDIF.
+    CONDENSE lv_log_id.
+
+    LOOP AT mapped-zrdtaipredictlog ASSIGNING FIELD-SYMBOL(<ls_preditionlog>).
+*      IF <ls_preditionlog>-shipmentid IS NOT INITIAL.
+      <ls_preditionlog>-shipmentid = lv_shipment_id.
+      <ls_preditionlog>-requestid = lv_log_id.
+      <ls_preditionlog>-guiid = <ls_shiptrack>-%pid.
+*      ENDIF.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD cleanup_finalize.
+  ENDMETHOD.
+
+ENDCLASS.
