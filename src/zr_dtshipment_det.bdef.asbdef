@@ -1,0 +1,209 @@
+managed implementation in class ZBP_SHIPMENT_DETAILS unique;
+strict ( 2 );
+with draft;
+extensible;
+define behavior for ZR_DTSHIPMENT_DET alias ZrDtshipmentDet
+persistent table zdt_shipment_det
+extensible
+draft table zdtshpment_det_d
+etag master Locallastchanged
+lock master total etag Lastchanged
+late numbering
+authorization master ( global )
+{
+  //  field ( mandatory : create )
+  //  ShipmentID;
+
+  field ( readonly )
+  Guiid,
+  CreatedBy,
+  ChangedBy,
+  Locallastchanged,
+  Lastchanged;
+
+  //  field ( numbering : managed )
+  //  Guiid;
+
+  //  field ( readonly )
+  field ( readonly : update )
+  ShipmentID;
+
+
+  create;
+  update;
+  delete;
+
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Edit;
+  draft action Resume;
+  draft determine action Prepare;
+
+  association _ShipmentTrackEvent { create; with draft; }
+  association _PredictionLog { create; with draft; }
+
+  //  action AiDelayPrediction result [1] $self;
+  action AiDelayPrediction result [1] $self;
+  action AiSendMailNotify result [1] $self;
+  action MapLocation;// result [1] $self;
+  action getCoordinates result [1] $self;
+  action testAction result [1] $self;
+  action AskAi result [1] $self;
+
+  determination ship_event_type
+  on modify { field ShipmentType; }
+  determination calculate_delay_risk
+  on modify { field DelayHours; }
+
+  side effects
+  {
+    action AiDelayPrediction affects field AiSummary;
+      action getCoordinates affects field(
+      Orginlatitude,
+      Orginlongitude,
+      DestinationLatitude,
+      DestinationLongitude );
+    action AskAi affects field AiResponse;
+  }
+
+  mapping for zdt_shipment_det corresponding extensible
+    {
+      Guiid                = GUIID;
+      ShipmentID           = SHIPMENT_ID;
+      ShipmentType         = SHIPMENT_TYPE;
+      OriginLocation       = ORIGIN_LOCATION;
+      DestinationLocation  = DESTINATION_LOCATION;
+      DistanceKm           = DISTANCE_KM;
+      CurrentStatus        = CURRENT_STATUS;
+      EtaDays              = ETA_DAYS;
+      DelayHours           = DELAY_HOURS;
+      DelayRisk            = DELAY_RISK;
+      DelayRiskCrit        = DELAY_RISK_CRIT;
+      AiSummary            = AI_SUMMARY;
+      AiResponse           = AI_RESPONSE;
+      OrginRegion          = ORGIN_REGION;
+      CurrentRegion        = CURRENT_REGION;
+      DestinationRegion    = DESTINATION_REGION;
+      Orginlatitude        = ORGINLATITUDE;
+      OrginLongitude       = ORGINLONGITUDE;
+      Destinationlatitude  = DESTINATIONLATITUDE;
+      DestinationLongitude = DESTINATIONLONGITUDE;
+      CurrentCity          = CURRENT_CITY;
+      DestinationCity      = DESTINATION_CITY;
+      CreatedBy            = CREATED_BY;
+      CreatedAt            = CREATED_AT;
+      ChangedBy            = CHANGED_BY;
+      ChangedAt            = CHANGED_AT;
+      Locallastchanged     = LOCALLASTCHANGED;
+      Lastchanged          = LASTCHANGED;
+    }
+
+}
+
+define behavior for ZR_SHIPMENT_TRACKER alias ZrDtshipTracker
+persistent table zdt_ship_tracker
+extensible
+draft table zdtship_trcker_d
+etag master Locallastchanged
+lock dependent by _ShipmentDetails
+late numbering
+//lock master total etag Lastchanged
+authorization dependent by _ShipmentDetails
+{
+  //  field ( mandatory : create )
+  //  EventID,
+  //  ShipmentID;
+
+  field ( readonly )
+  Guiid,
+  CreatedBy,
+  ChangedBy,
+  Locallastchanged,
+  Lastchanged;
+
+  //    field ( numbering : managed )
+  //     Guiid;
+
+  //  field ( readonly )
+  field ( readonly : update )
+  EventID,
+  ShipmentID;
+
+
+  //  create;
+  update;
+  delete;
+
+  association _ShipmentDetails { with draft; }
+
+  mapping for zdt_ship_tracker corresponding extensible
+    {
+      Guiid            = GUIID;
+      EventID          = EVENT_ID;
+      ShipmentID       = SHIPMENT_ID;
+      EventType        = EVENT_TYPE;
+      EventLocation    = EVENT_LOCATION;
+      EventTime        = EVENT_TIME;
+      Remarks          = REMARKS;
+      CreatedBy        = CREATED_BY;
+      CreatedAt        = CREATED_AT;
+      ChangedBy        = CHANGED_BY;
+      ChangedAt        = CHANGED_AT;
+      Locallastchanged = LOCALLASTCHANGED;
+      Lastchanged      = LASTCHANGED;
+    }
+
+}
+
+define behavior for ZR_AI_PREDICTLOG alias ZrDtaipredictlog
+persistent table zdt_aipredictlog
+extensible
+draft table zdtipredictlog_d
+etag master Locallastchanged
+lock dependent by _Predection
+late numbering
+//lock master total etag Lastchanged
+authorization dependent by _Predection
+{
+  //  field ( mandatory : create )
+  //  RequestID,
+  //  ShipmentID;
+
+  field ( readonly )
+  Guiid,
+  CreatedBy,
+  ChangedBy,
+  Locallastchanged,
+  Lastchanged;
+
+  //  field ( numbering : managed )
+  //   Guiid;
+
+  //  field ( readonly )
+  field ( readonly : update )
+  RequestID,
+  ShipmentID;
+
+  update;
+  delete;
+
+  association _Predection { with draft; }
+
+  mapping for zdt_aipredictlog corresponding extensible
+    {
+      Guiid            = GUIID;
+      RequestID        = REQUEST_ID;
+      ShipmentID       = SHIPMENT_ID;
+      Aiactiontype     = AIACTIONTYPE;
+      Inputsnapshot    = INPUTSNAPSHOT;
+      Airesponse       = AIRESPONSE;
+      Calledat         = CALLEDAT;
+      CreatedBy        = CREATED_BY;
+      CreatedAt        = CREATED_AT;
+      ChangedBy        = CHANGED_BY;
+      ChangedAt        = CHANGED_AT;
+      Locallastchanged = LOCALLASTCHANGED;
+      Lastchanged      = LASTCHANGED;
+    }
+
+}
