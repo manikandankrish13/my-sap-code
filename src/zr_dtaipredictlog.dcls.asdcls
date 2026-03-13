@@ -1,0 +1,6 @@
+@EndUserText.label: 'ZR_DTAIPREDICTLOG'
+@MappingRole: true
+define role ZR_DTAIPREDICTLOG {
+  grant select on ZR_DTAIPREDICTLOG
+  where TRUE;
+}
