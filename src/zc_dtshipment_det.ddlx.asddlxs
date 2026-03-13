@@ -1,0 +1,402 @@
+@Metadata.layer: #CORE
+@UI.headerInfo.title.type: #STANDARD
+@UI.headerInfo.title.value: 'ShipmentID'
+@UI.headerInfo.description.type: #STANDARD
+@UI.headerInfo.description.value: 'ShipmentID'
+@UI.headerInfo.imageUrl: 'FlighImage'
+annotate view ZC_DTSHIPMENT_DET with
+{
+  @EndUserText.label: 'Guiid'
+  @UI.identification: [ {
+    position: 10 ,
+    label: 'Guiid'
+  } ]
+  @UI.lineItem: [ {
+    position: 10 ,
+    label: 'Guiid'
+  } ]
+  @UI.selectionField: [ {
+    position: 10
+  } ]
+  Guiid;
+
+  @EndUserText.label: 'ShipmentID'
+  @UI.facet: [ {
+    label: 'General Information',
+    id: 'GeneralInfo',
+    purpose: #STANDARD,
+    position: 20 ,
+    type: #IDENTIFICATION_REFERENCE
+  } ,
+  {
+     label: 'Shipment Tracking Event',
+    id: 'ShipTrackInfo',
+    purpose: #STANDARD,
+    position: 30
+    ,
+    type: #LINEITEM_REFERENCE
+    ,
+    targetElement: '_ShipmentTrackEvent'
+  },
+  {
+    label: 'Predection Log',
+    id: 'PredectionLog',
+    purpose: #STANDARD,
+    position: 40 ,
+    type: #LINEITEM_REFERENCE,
+    targetElement: '_PredictionLog'
+  },
+    {
+    label: 'Ai Response Log',
+    id: 'AIResponse',
+    purpose: #STANDARD,
+    position: 50 ,
+    type: #FIELDGROUP_REFERENCE,
+    targetQualifier: 'AIResponse'
+  //    targetElement: '_PredictionLog'
+  }
+  ]
+  @UI.identification: [ {
+    position: 20 ,
+    label: 'ShipmentID',
+    iconUrl: 'sap-icon://flight'
+  } ,
+  { type: #FOR_ACTION, dataAction: 'AiDelayPrediction',
+  label: 'Ai Delay Prediction', position: 10 ,  iconUrl: 'sap-icon://simulate' },
+  { type: #FOR_ACTION, dataAction: 'AiSendMailNotify',
+  label: 'Ai SendMail Notify', position: 20 , iconUrl: 'sap-icon://email'},
+  { type: #FOR_ACTION, dataAction: 'getCoordinates' ,
+   label: 'Get Coordinates' , iconUrl: 'sap-icon://map' , position: 30  },
+  { type: #FOR_ACTION, dataAction: 'testaction' ,
+  label: 'test action' , position: 40 , iconUrl: 'sap-icon://map'},
+  { type: #FOR_ACTION, dataAction: 'AskAi' ,
+  label: 'Ask Open Ai' , position: 50 , iconUrl: 'sap-icon://machine-learning'}
+    //  { type: #FOR_ACTION,
+  //      dataAction: 'MapLocation',
+  //      semanticObject: 'ShipmentMap',
+  //      semanticObjectAction: 'display',
+  //      label: 'Real Time Location',
+  //      position: 30 }
+  ]
+
+  @UI.lineItem   : [ {
+      position: 20 ,
+      label: 'ShipmentID'
+    } ]
+  @UI.selectionField: [ {
+    position: 20
+  } ]
+  ShipmentID;
+
+  //  @UI.identification: [{ position: 200, iconUrl: 'sap-icon://flight' }]
+  //  FlighImage;
+
+  @EndUserText.label: 'ShipmentType'
+  @UI.identification: [ {
+    position: 30 ,
+    label: 'ShipmentType'
+  } ]
+  @UI.lineItem: [ {
+   position: 30 ,
+   label: 'ShipmentType' , emphasized: true
+  } ]
+  @UI.selectionField: [ {
+    position: 30
+  } ]
+  ShipmentType;
+
+  @EndUserText.label: 'OriginLocation'
+  @UI.identification: [ {
+    position: 40 ,
+    label: 'OriginLocation'
+  } ]
+  @UI.lineItem: [ {
+    position: 40 ,
+    label: 'OriginLocation' , emphasized: true,  cssDefault.width: '6rem'
+  } ]
+  @UI.selectionField: [ {
+    position: 40
+  } ]
+  OriginLocation;
+
+  @EndUserText.label: 'DestinationLocation'
+  @UI.identification: [ {
+    position: 50 ,
+    label: 'DestinationLocation'
+  } ]
+  @UI.lineItem: [ {
+    position: 50 ,
+    label: 'DestinationLocation' , emphasized: true , cssDefault.width: '6rem'
+  } ]
+  @UI.selectionField: [ {
+    position: 50
+  } ]
+  DestinationLocation;
+
+  @EndUserText.label: 'DistanceKm'
+  @UI.identification: [ {
+    position: 60 ,
+    label: 'DistanceKm'
+  } ]
+  @UI.lineItem: [ {
+    position: 60 ,
+    label: 'DistanceKm'
+  } ]
+  @UI.selectionField: [ {
+    position: 60
+  } ]
+  DistanceKm;
+
+  @EndUserText.label: 'CurrentStatus'
+  @UI.identification: [ {
+    position: 70 ,
+    label: 'CurrentStatus'
+  } ]
+  @UI.lineItem: [ {
+    position: 70 ,
+    label: 'CurrentStatus'
+  } ]
+  @UI.selectionField: [ {
+    position: 70
+  } ]
+  CurrentStatus;
+
+  @EndUserText.label: 'EtaDays'
+  @UI.identification: [ {
+    position: 80 ,
+    label: 'EtaDays'
+  } ]
+  @UI.lineItem: [ {
+    position: 80 ,
+    label: 'EtaDays'
+  } ]
+  @UI.selectionField: [ {
+    position: 80
+  } ]
+  EtaDays;
+
+  @EndUserText.label: 'DelayHours'
+  @UI.identification: [ {
+    position: 90 ,
+    label: 'DelayHours'
+  } ]
+  @UI.lineItem: [ {
+    position: 90 ,
+    label: 'DelayHours'
+  } ]
+  @UI.selectionField: [ {
+    position: 90
+  } ]
+  DelayHours;
+
+  //  @EndUserText.label: 'DelayRisk'
+  //  @UI.identification: [ {
+  //    position: 100 ,
+  //    label: 'DelayRisk'
+  //  } ]
+  //  @UI.lineItem: [ {
+  //    position: 100 ,
+  //    label: 'DelayRisk'
+  //  } ]
+  //  @UI.selectionField: [ {
+  //    position: 100
+  //  } ]
+  //  DelayRisk;
+
+  @EndUserText.label: 'DelayRisk'
+  @UI.identification: [{
+      position: 100,
+      label: 'DelayRisk',
+      criticality: 'DelayRiskCrit'
+  }]
+  @UI.lineItem: [{
+      position: 100,
+      label: 'DelayRisk',
+      criticality: 'DelayRiskCrit'
+  }]
+  DelayRisk;
+
+  @EndUserText.label: 'DelayRiskCrit'
+  //  @UI.identification: [ {
+  //    position: 110 ,
+  //    label: 'DelayRiskCrit'
+  //  } ]
+  //  @UI.lineItem: [ {
+  //    position: 110 ,
+  //    label: 'DelayRiskCrit'
+  //  } ]
+  //  @UI.selectionField: [ {
+  //    position: 110
+  //  } ]
+  DelayRiskCrit;
+
+  @EndUserText.label: 'AiSummary'
+  @UI.identification: [ {
+    position: 120 ,
+    label: 'AiSummary'
+  } ]
+  @UI.lineItem: [ {
+    position: 120 ,
+    label: 'AiSummary'
+  } ]
+  @UI.selectionField: [ {
+    position: 120
+  } ]
+  AiSummary;
+
+  @UI.identification: [ {
+    position: 130
+  } ]
+  @UI.lineItem: [ {
+    position: 130
+  } ]
+  @UI.selectionField: [ {
+    position: 130
+  } ]
+  CreatedBy;
+
+  @UI.identification: [ {
+    position: 140
+  } ]
+  @UI.lineItem: [ {
+    position: 140
+  } ]
+  @UI.selectionField: [ {
+    position: 140
+  } ]
+  CreatedAt;
+
+  @UI.identification: [ {
+    position: 150
+  } ]
+  @UI.lineItem: [ {
+    position: 150
+  } ]
+  @UI.selectionField: [ {
+    position: 150
+  } ]
+  ChangedBy;
+
+  @UI.identification: [ {
+    position: 160
+  } ]
+  @UI.lineItem: [ {
+    position: 160
+  } ]
+  @UI.selectionField: [ {
+    position: 160
+  } ]
+  ChangedAt;
+
+  @UI.identification: [ {
+    position: 170
+  } ]
+  @UI.lineItem: [ {
+    position: 170
+  } ]
+  @UI.selectionField: [ {
+    position: 170
+  } ]
+  Locallastchanged;
+
+  @UI.identification: [ {
+    position: 180
+  } ]
+  @UI.lineItem: [ {
+    position: 180
+  } ]
+  @UI.selectionField: [ {
+    position: 180
+  } ]
+  Lastchanged;
+
+  @EndUserText.label: '_BaseEntity'
+  @UI.identification: [ {
+    position: 190 ,
+    label: '_BaseEntity'
+  } ]
+  @UI.lineItem: [ {
+    position: 190 ,
+    label: '_BaseEntity'
+  } ]
+  @UI.selectionField: [ {
+    position: 190
+  } ]
+  _BaseEntity;
+
+  @EndUserText.label: 'Orgin State'
+  @UI.identification: [ {
+    position: 200 ,
+    label: 'Orgin State'
+  } ]
+  @UI.lineItem: [ {
+    position: 200 ,
+    label: 'Orgin State'
+  } ]
+  @UI.selectionField: [ {
+    position: 200
+  } ]
+  OrginRegion;
+
+  @EndUserText.label: 'Destination State'
+  @UI.identification: [ {
+    position: 210 ,
+    label: 'Destination State'
+  } ]
+  @UI.lineItem: [ {
+    position: 210 ,
+    label: 'Destination State'
+  } ]
+  @UI.selectionField: [ {
+    position: 210
+  } ]
+  DestinationRegion;
+
+  //  @EndUserText.label: 'CurrentRegion'
+  //  @UI.identification: [ {
+  //    position: 220 ,
+  //    label: 'CurrentRegion'
+  //  } ]
+  //  @UI.lineItem: [ {
+  //    position: 220 ,
+  //    label: 'CurrentRegion'
+  //  } ]
+  //  @UI.selectionField: [ {
+  //    position: 220
+  //  } ]
+  //  CurrentRegion;
+
+  @EndUserText.label: 'CurrentCity'
+  @UI.identification: [ {
+    position: 230 ,
+    label: 'CurrentCity'
+  } ]
+  @UI.lineItem: [ {
+    position: 230 ,
+    label: 'CurrentCity'
+  } ]
+  @UI.selectionField: [ {
+    position: 230
+  } ]
+  CurrentCity;
+
+  @EndUserText.label: 'DestinationCity'
+  @UI.identification: [ {
+    position: 240 ,
+    label: 'DestinationCity'
+  } ]
+  @UI.lineItem: [ {
+    position: 240 ,
+    label: 'DestinationCity'
+  } ]
+  @UI.selectionField: [ {
+    position: 240
+  } ]
+  DestinationCity;
+
+  @UI.fieldGroup: [{ qualifier: 'AIResponse', position: 10 }]
+  @UI.multiLineText: true
+  AiResponse;
+
+
+} //##NO_TEXT
