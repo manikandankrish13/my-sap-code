@@ -1,0 +1,16 @@
+@EndUserText: {
+  label: 'Service Definition for ZC_DTSHIPMENT_DET'
+}
+@ObjectModel: {
+  leadingEntity: {
+    name: 'ZC_DTSHIPMENT_DET'
+  }
+}
+define service ZAPI_SHIPMENT_DET_O4
+  provider contracts odata_v4_ui {
+  expose ZC_DTSHIPMENT_DET    as ShipmentDetails;
+  expose ZC_SHIPMETNT_TRACKER as ShipmentTracker;
+  expose ZC_AI_PREDICTLOG     as PredictLog;
+  expose ZI_Ship_STATUS_CHECK as ShipStatusCheck;
+  expose ZI_DOM_SHIPT_TYPE    as ShipmentType;
+}
