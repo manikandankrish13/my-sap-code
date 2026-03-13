@@ -1,0 +1,192 @@
+@Metadata.layer: #CORE
+@UI.headerInfo.title.type: #STANDARD
+@UI.headerInfo.title.value: 'EventID'
+@UI.headerInfo.description.type: #STANDARD
+@UI.headerInfo.description.value: 'EventID'
+annotate view ZC_SHIPMETNT_TRACKER with
+{
+  @EndUserText.label: 'Guiid'
+  @UI.identification: [ {
+    position: 10 , 
+    label: 'Guiid'
+  } ]
+  @UI.lineItem: [ {
+    position: 10 , 
+    label: 'Guiid'
+  } ]
+  @UI.selectionField: [ {
+    position: 10 
+  } ]
+  Guiid;
+  
+  @EndUserText.label: 'EventID'
+  @UI.facet: [ {
+    label: 'General Information', 
+    id: 'GeneralInfo', 
+    purpose: #STANDARD, 
+    position: 20 , 
+    type: #IDENTIFICATION_REFERENCE
+  } ]
+  @UI.identification: [ {
+    position: 20 , 
+    label: 'EventID'
+  } ]
+  @UI.lineItem: [ {
+    position: 20 , 
+    label: 'EventID'
+  } ]
+  @UI.selectionField: [ {
+    position: 20 
+  } ]
+  EventID;
+  
+  @EndUserText.label: 'ShipmentID'
+  @UI.identification: [ {
+    position: 30 , 
+    label: 'ShipmentID'
+  } ]
+  @UI.lineItem: [ {
+    position: 30 , 
+    label: 'ShipmentID'
+  } ]
+  @UI.selectionField: [ {
+    position: 30 
+  } ]
+  ShipmentID;
+  
+  @EndUserText.label: 'EventType'
+  @UI.identification: [ {
+    position: 40 , 
+    label: 'EventType'
+  } ]
+  @UI.lineItem: [ {
+    position: 40 , 
+    label: 'EventType'
+  } ]
+  @UI.selectionField: [ {
+    position: 40 
+  } ]
+  EventType;
+  
+  @EndUserText.label: 'EventLocation'
+  @UI.identification: [ {
+    position: 50 , 
+    label: 'EventLocation'
+  } ]
+  @UI.lineItem: [ {
+    position: 50 , 
+    label: 'EventLocation'
+  } ]
+  @UI.selectionField: [ {
+    position: 50 
+  } ]
+  EventLocation;
+  
+  @EndUserText.label: 'EventTime'
+  @UI.identification: [ {
+    position: 60 , 
+    label: 'EventTime'
+  } ]
+  @UI.lineItem: [ {
+    position: 60 , 
+    label: 'EventTime'
+  } ]
+  @UI.selectionField: [ {
+    position: 60 
+  } ]
+  EventTime;
+  
+  @EndUserText.label: 'Remarks'
+  @UI.identification: [ {
+    position: 70 , 
+    label: 'Remarks'
+  } ]
+  @UI.lineItem: [ {
+    position: 70 , 
+    label: 'Remarks'
+  } ]
+  @UI.selectionField: [ {
+    position: 70 
+  } ]
+  Remarks;
+  
+  @UI.identification: [ {
+    position: 80 
+  } ]
+  @UI.lineItem: [ {
+    position: 80 
+  } ]
+  @UI.selectionField: [ {
+    position: 80 
+  } ]
+  CreatedBy;
+  
+  @UI.identification: [ {
+    position: 90 
+  } ]
+  @UI.lineItem: [ {
+    position: 90 
+  } ]
+  @UI.selectionField: [ {
+    position: 90 
+  } ]
+  CreatedAt;
+  
+  @UI.identification: [ {
+    position: 100 
+  } ]
+  @UI.lineItem: [ {
+    position: 100 
+  } ]
+  @UI.selectionField: [ {
+    position: 100 
+  } ]
+  ChangedBy;
+  
+  @UI.identification: [ {
+    position: 110 
+  } ]
+  @UI.lineItem: [ {
+    position: 110 
+  } ]
+  @UI.selectionField: [ {
+    position: 110 
+  } ]
+  ChangedAt;
+  
+  @UI.identification: [ {
+    position: 120 
+  } ]
+  @UI.lineItem: [ {
+    position: 120 
+  } ]
+  @UI.selectionField: [ {
+    position: 120 
+  } ]
+  Locallastchanged;
+  
+  @UI.identification: [ {
+    position: 130 
+  } ]
+  @UI.lineItem: [ {
+    position: 130 
+  } ]
+  @UI.selectionField: [ {
+    position: 130 
+  } ]
+  Lastchanged;
+  
+  @EndUserText.label: '_BaseEntity'
+  @UI.identification: [ {
+    position: 140 , 
+    label: '_BaseEntity'
+  } ]
+  @UI.lineItem: [ {
+    position: 140 , 
+    label: '_BaseEntity'
+  } ]
+  @UI.selectionField: [ {
+    position: 140 
+  } ]
+  _baseentity;
+}
