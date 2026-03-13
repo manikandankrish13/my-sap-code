@@ -1,0 +1,34 @@
+{
+  "formatVersion": "2",
+  "header": {
+    "description": "Shipment Tracking App",
+    "originalLanguage": "en",
+    "abapLanguageVersion": "cloudDevelopment"
+  },
+  "generalInformation": {
+    "appType": "ui5",
+    "catalogId": "SAP_TC_UI5_REPO_UIAD",
+    "targetMappingTitle": "Shipment Tracking Details"
+  },
+  "ui5AppDetails": {
+    "appId": "shipmenttrack"
+  },
+  "navigation": {
+    "targetMappingId": "UI5R_C4ECC9E0B0701A2586F577A03B410C4D117DC303_TM",
+    "semanticObject": "ZShipmentDetails",
+    "action": "display",
+    "desktop": true,
+    "tablet": true,
+    "phone": true
+  },
+  "tiles": [
+    {
+      "id": "UI5R_C4ECC9E0B0701A2586F577A03B410C4D117DC303_AL",
+      "tileType": "static",
+      "isDefault": true,
+      "standard": {
+        "title": "Shipment Tracking Details"
+      }
+    }
+  ]
+}
