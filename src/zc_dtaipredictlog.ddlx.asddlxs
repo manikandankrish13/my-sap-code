@@ -1,0 +1,193 @@
+@Metadata.layer: #CORE
+@UI.headerInfo.title.type: #STANDARD
+@UI.headerInfo.title.value: 'RequestID'
+@UI.headerInfo.description.type: #STANDARD
+@UI.headerInfo.description.value: 'RequestID'
+annotate view ZC_AI_PREDICTLOG with
+{
+  @EndUserText.label: 'Guiid'
+  @UI.identification: [ {
+    position: 10 ,
+    label: 'Guiid'
+  } ]
+  @UI.lineItem: [ {
+    position: 10 ,
+    label: 'Guiid'
+  } ]
+  @UI.selectionField: [ {
+    position: 10
+  } ]
+  Guiid;
+
+  @EndUserText.label: 'RequestID'
+  @UI.facet: [ {
+    label: 'General Information',
+    id: 'GeneralInfo',
+    purpose: #STANDARD,
+    position: 20 ,
+    type: #IDENTIFICATION_REFERENCE
+  } ]
+  @UI.identification: [ {
+    position: 20 ,
+    label: 'RequestID'
+  } ]
+  @UI.lineItem: [ {
+    position: 20 ,
+    label: 'RequestID'
+  } ]
+  @UI.selectionField: [ {
+    position: 20
+  } ]
+  RequestID;
+
+  @EndUserText.label: 'ShipmentID'
+  @UI.identification: [ {
+    position: 30 ,
+    label: 'ShipmentID'
+  } ]
+  @UI.lineItem: [ {
+    position: 30 ,
+    label: 'ShipmentID'
+  } ]
+  @UI.selectionField: [ {
+    position: 30
+  } ]
+  ShipmentID;
+
+  @EndUserText.label: 'Aiactiontype'
+  @UI.identification: [ {
+    position: 40 ,
+    label: 'Aiactiontype'
+  } ]
+  @UI.lineItem: [ {
+    position: 40 ,
+    label: 'Aiactiontype'
+  } ]
+  @UI.selectionField: [ {
+    position: 40
+  } ]
+  Aiactiontype;
+
+  @EndUserText.label: 'Inputsnapshot'
+  @UI.identification: [ {
+    position: 50 ,
+    label: 'Inputsnapshot',
+    iconUrl: 'sap-icon://attachment'
+  } ]
+  @UI.lineItem: [ {
+    position: 50 ,
+    label: 'Inputsnapshot'
+  } ]
+  @UI.selectionField: [ {
+    position: 50
+  } ]
+  Inputsnapshot;
+
+  @EndUserText.label: 'Airesponse'
+  @UI.identification: [ {
+    position: 60 ,
+    label: 'Airesponse'
+  } ]
+  @UI.lineItem: [ {
+    position: 60 ,
+    label: 'Airesponse'
+  } ]
+  @UI.selectionField: [ {
+    position: 60
+  } ]
+  Airesponse;
+
+  @EndUserText.label: 'Calledat'
+  @UI.identification: [ {
+    position: 70 ,
+    label: 'Calledat'
+  } ]
+  @UI.lineItem: [ {
+    position: 70 ,
+    label: 'Calledat'
+  } ]
+  @UI.selectionField: [ {
+    position: 70
+  } ]
+  Calledat;
+
+  @UI.identification: [ {
+    position: 80
+  } ]
+  @UI.lineItem: [ {
+    position: 80
+  } ]
+  @UI.selectionField: [ {
+    position: 80
+  } ]
+  CreatedBy;
+
+  @UI.identification: [ {
+    position: 90
+  } ]
+  @UI.lineItem: [ {
+    position: 90
+  } ]
+  @UI.selectionField: [ {
+    position: 90
+  } ]
+  CreatedAt;
+
+  @UI.identification: [ {
+    position: 100
+  } ]
+  @UI.lineItem: [ {
+    position: 100
+  } ]
+  @UI.selectionField: [ {
+    position: 100
+  } ]
+  ChangedBy;
+
+  @UI.identification: [ {
+    position: 110
+  } ]
+  @UI.lineItem: [ {
+    position: 110
+  } ]
+  @UI.selectionField: [ {
+    position: 110
+  } ]
+  ChangedAt;
+
+  @UI.identification: [ {
+    position: 120
+  } ]
+  @UI.lineItem: [ {
+    position: 120
+  } ]
+  @UI.selectionField: [ {
+    position: 120
+  } ]
+  Locallastchanged;
+
+  @UI.identification: [ {
+    position: 130
+  } ]
+  @UI.lineItem: [ {
+    position: 130
+  } ]
+  @UI.selectionField: [ {
+    position: 130
+  } ]
+  Lastchanged;
+
+  @EndUserText.label: '_BaseEntity'
+  @UI.identification: [ {
+    position: 140 ,
+    label: '_BaseEntity'
+  } ]
+  @UI.lineItem: [ {
+    position: 140 ,
+    label: '_BaseEntity'
+  } ]
+  @UI.selectionField: [ {
+    position: 140
+  } ]
+  _baseentity;
+}
